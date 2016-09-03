@@ -6,11 +6,16 @@ defmodule Tweetyodel.Tweets do
   end
 
   def init(_) do
+    schedule_cleanup()
     {:ok, []}
   end
 
   def start_topic(pid, topic) do
     GenServer.cast(pid, %{start_tweets: topic})
+  end
+
+  defp schedule_cleanup() do
+    Process.send_after(self(), :reset_tweets, 60_000 * 1)  # After 5 minutes cleanup
   end
 
   defp schedule_work(topic) do
@@ -22,7 +27,7 @@ defmodule Tweetyodel.Tweets do
   end
 
   defp configure_extwitter do
-    ExTwitter.configure(:process, [
+    ExTwitter.configure([
           consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
           consumer_secret: System.get_env("TWITTER_CONSUMER_SECRET"),
           access_token: System.get_env("TWITTER_ACCESS_TOKEN"),
@@ -44,15 +49,21 @@ defmodule Tweetyodel.Tweets do
     parent = self()
     spawn fn ->
       configure_extwitter()
-      tweets = ExTwitter.stream_filter([track: topic], :infinity)
-      |> Enum.take(10)
-      send parent, {:tweets, tweets}
+      for tweet <- Stream.cycle(ExTwitter.stream_filter([track: topic], :infinity)) do
+        send parent, {:tweet, tweet}
+        :timer.sleep 200
+      end
     end
     schedule_work(topic) # Reschedule once more
     {:noreply, state}
   end
 
-  def handle_info({:tweets, tweets}, _state) do
-    {:noreply, tweets}
+  def handle_info({:tweet, tweet}, state) do
+    {:noreply, [tweet|state]}
+  end
+
+  def handle_info(:reset_tweets, _state) do
+    IO.inspect "resetting!"
+    {:noreply, [], :hibernate}
   end
 end
