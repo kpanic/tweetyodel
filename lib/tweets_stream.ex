@@ -10,6 +10,8 @@ defmodule Tweetyodel.Tweets do
     {:ok, %{}}
   end
 
+  # API
+
   def start_topic(pid, topic) do
     GenServer.cast(pid, %{start_tweets: topic})
   end
@@ -30,6 +32,8 @@ defmodule Tweetyodel.Tweets do
     GenServer.call(pid, :stop_tweets)
   end
 
+  # Private
+
   defp configure_extwitter do
     ExTwitter.configure([
           consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
@@ -39,6 +43,8 @@ defmodule Tweetyodel.Tweets do
         ]
     )
   end
+
+  # GenServer messages
 
   def handle_call(:entries, _from, state) do
     {:reply, Map.get(state, :tweets, []), state}
