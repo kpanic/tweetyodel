@@ -5,6 +5,7 @@ defmodule Tweetyodel do
     import Supervisor.Spec, warn: false
 
     children = [
+      # Leave space for workers
       supervisor(Tweetyodel.Workers.Supervisor, []),
     ]
 
