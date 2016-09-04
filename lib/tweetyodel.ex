@@ -5,7 +5,6 @@ defmodule Tweetyodel do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(Tweetyodel.Tweets, []),
       supervisor(Tweetyodel.Workers.Supervisor, []),
     ]
 
