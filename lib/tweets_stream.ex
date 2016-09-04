@@ -64,7 +64,7 @@ defmodule Tweetyodel.Tweets do
 
   def handle_info(%{fetch_tweets: topic}, state) do
     parent = self()
-    pid = spawn fn ->
+    pid = spawn_link fn ->
       configure_extwitter()
       for tweet <- ExTwitter.stream_filter([track: topic], :infinity) do
         send parent, {:tweet, tweet}
