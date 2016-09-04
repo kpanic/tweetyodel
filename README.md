@@ -1,6 +1,6 @@
 # Tweetyodel
 
-**TODO: Add description**
+**Just another twitter experiment**
 
 ## Installation
 
