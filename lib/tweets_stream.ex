@@ -49,12 +49,10 @@ defmodule Tweetyodel.Tweets do
     parent = self()
     spawn fn ->
       configure_extwitter()
-      for tweet <- Stream.cycle(ExTwitter.stream_filter([track: topic], :infinity)) do
+      for tweet <- ExTwitter.stream_filter([track: topic], :infinity) do
         send parent, {:tweet, tweet}
-        :timer.sleep 200
       end
     end
-    schedule_work(topic) # Reschedule once more
     {:noreply, state}
   end
 
