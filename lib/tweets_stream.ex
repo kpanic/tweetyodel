@@ -15,7 +15,7 @@ defmodule Tweetyodel.Tweets do
   end
 
   defp schedule_cleanup() do
-    Process.send_after(self(), :reset_tweets, 60_000 * 1)
+    Process.send_after(self(), :purge_tweets, 60_000 * 1)
   end
 
   defp schedule_work(topic) do
@@ -45,7 +45,7 @@ defmodule Tweetyodel.Tweets do
   end
 
   def handle_call(:stop_tweets, _from, state) do
-    stream_pid = Map.get(state, :stream_pid)
+    stream_pid = Map.get(state, :stream)
     ExTwitter.stream_control(stream_pid, :stop)
     Process.exit(stream_pid, :normal)
     {:reply, :ok, state}
@@ -64,7 +64,7 @@ defmodule Tweetyodel.Tweets do
         send parent, {:tweet, tweet}
       end
     end
-    {:noreply, Map.put(state, :stream_pid, pid)}
+    {:noreply, Map.put(state, :stream, pid)}
   end
 
   def handle_info({:tweet, tweet}, state) do
@@ -72,10 +72,10 @@ defmodule Tweetyodel.Tweets do
     {:noreply, Map.put(state, :tweets, tweets)}
   end
 
-  def handle_info(:reset_tweets, state) do
-    IO.inspect "resetting!"
+  def handle_info(:purge_tweets, state) do
     schedule_cleanup()
-    state = Map.delete(state, :tweets)
-    {:noreply, state, :hibernate}
+    tweets = Map.get(state, :tweets, [])
+    |> Enum.take(100)
+    {:noreply, Map.put(state, :tweets, tweets), :hibernate}
   end
 end
