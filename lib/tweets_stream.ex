@@ -64,6 +64,7 @@ defmodule Tweetyodel.Tweets do
 
   def handle_info(:reset_tweets, _state) do
     IO.inspect "resetting!"
+    schedule_cleanup()
     {:noreply, [], :hibernate}
   end
 end
