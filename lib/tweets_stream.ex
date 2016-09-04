@@ -7,7 +7,7 @@ defmodule Tweetyodel.Tweets do
 
   def init(_) do
     schedule_cleanup()
-    {:ok, []}
+    {:ok, %{}}
   end
 
   def start_topic(pid, topic) do
@@ -26,6 +26,10 @@ defmodule Tweetyodel.Tweets do
     GenServer.call(pid, :entries)
   end
 
+  def stop_stream(pid) do
+    GenServer.call(pid, :stop_tweets)
+  end
+
   defp configure_extwitter do
     ExTwitter.configure([
           consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
@@ -37,7 +41,14 @@ defmodule Tweetyodel.Tweets do
   end
 
   def handle_call(:entries, _from, state) do
-    {:reply, state, state}
+    {:reply, Map.get(state, :tweets, []), state}
+  end
+
+  def handle_call(:stop_tweets, _from, state) do
+    stream_pid = Map.get(state, :stream_pid)
+    ExTwitter.stream_control(stream_pid, :stop)
+    Process.exit(stream_pid, :normal)
+    {:reply, :ok, state}
   end
 
   def handle_cast(%{start_tweets: topic}, state) do
@@ -47,22 +58,24 @@ defmodule Tweetyodel.Tweets do
 
   def handle_info(%{fetch_tweets: topic}, state) do
     parent = self()
-    spawn fn ->
+    pid = spawn fn ->
       configure_extwitter()
       for tweet <- ExTwitter.stream_filter([track: topic], :infinity) do
         send parent, {:tweet, tweet}
       end
     end
-    {:noreply, state}
+    {:noreply, Map.put(state, :stream_pid, pid)}
   end
 
   def handle_info({:tweet, tweet}, state) do
-    {:noreply, [tweet|state]}
+    tweets = [tweet|Map.get(state, :tweets, [])]
+    {:noreply, Map.put(state, :tweets, tweets)}
   end
 
-  def handle_info(:reset_tweets, _state) do
+  def handle_info(:reset_tweets, state) do
     IO.inspect "resetting!"
     schedule_cleanup()
-    {:noreply, [], :hibernate}
+    state = Map.delete(state, :tweets)
+    {:noreply, state, :hibernate}
   end
 end
