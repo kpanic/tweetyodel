@@ -57,7 +57,7 @@ defmodule Tweetyodel.Tweets do
       Process.exit(stream_pid, :normal)
       {:reply, :ok, state}
     else
-      {:reply, :noproc, state}
+      {:reply, :stream_not_started, state}
     end
   end
 
