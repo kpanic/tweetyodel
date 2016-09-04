@@ -52,9 +52,13 @@ defmodule Tweetyodel.Tweets do
 
   def handle_call(:stop_tweets, _from, state) do
     stream_pid = Map.get(state, :stream)
-    ExTwitter.stream_control(stream_pid, :stop)
-    Process.exit(stream_pid, :normal)
-    {:reply, :ok, state}
+    if stream_pid do
+      ExTwitter.stream_control(stream_pid, :stop)
+      Process.exit(stream_pid, :normal)
+      {:reply, :ok, state}
+    else
+      {:reply, :noproc, state}
+    end
   end
 
   def handle_cast(%{start_tweets: topic}, state) do
