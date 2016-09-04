@@ -59,7 +59,7 @@ defmodule Tweetyodel.Worker do
   # GenServer
 
   def handle_call(:entries, _from, state) do
-    {:reply, Map.get(state, :tweets, []), state}
+    {:reply, Enum.reverse(Map.get(state, :tweets, [])), state}
   end
 
   def handle_call(:stop_tweets, _from, state) do
