@@ -15,7 +15,7 @@ defmodule Tweetyodel.Tweets do
   end
 
   defp schedule_cleanup() do
-    Process.send_after(self(), :reset_tweets, 60_000 * 1)  # After 5 minutes cleanup
+    Process.send_after(self(), :reset_tweets, 60_000 * 1)
   end
 
   defp schedule_work(topic) do
