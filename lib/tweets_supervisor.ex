@@ -1,4 +1,4 @@
-defmodule Tweetyodel.Workers.Supervisor do
+defmodule Tweetyodel.Worker.Supervisor do
   use Supervisor
 
   def start_link do
