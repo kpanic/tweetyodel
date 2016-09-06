@@ -2,6 +2,8 @@
 
 **Just another twitter experiment**
 
+![Yodeling!](/pic/yodel.jpg)
+
 ## What is Tweetyodel?
 
 It is a `GenServer` that can search or stream the Twitter API.
