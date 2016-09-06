@@ -2,6 +2,15 @@
 
 **Just another twitter experiment**
 
+## What is Tweetyodel?
+
+It is a `GenServer` that can search or stream the Twitter API.
+Think about it like one process per Twitter query/topic, ideal to easily
+integrate with *Phoenix* channels or other applications.
+
+**NOTE**: It's a pet project, however if you would like to give it a try, why not!
+
+
 ## Configuration
 
 Export these environment variables (you have to create your twitter app first on https://apps.twitter.com/)
