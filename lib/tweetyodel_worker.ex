@@ -1,6 +1,8 @@
 defmodule Tweetyodel.Worker do
   use GenServer
 
+  @max_keep_tweets 100
+
   def start_link(name) do
     GenServer.start_link(__MODULE__, [], name: via_tuple(name))
   end
@@ -106,7 +108,7 @@ defmodule Tweetyodel.Worker do
   def handle_info(:purge_tweets, state) do
     schedule_cleanup()
     tweets = Map.get(state, :tweets, [])
-    |> Enum.take(100)
+    |> Enum.take(@max_keep_tweets)
     {:noreply, Map.put(state, :tweets, tweets), :hibernate}
   end
 end
