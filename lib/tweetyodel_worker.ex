@@ -60,6 +60,11 @@ defmodule Tweetyodel.Worker do
 
   # GenServer
 
+  def handle_call(%{search: topic}, _from, state) do
+    tweets = ExTwitter.search(topic)
+    {:reply, tweets, Map.put(state, :tweets, tweets)}
+  end
+
   def handle_call(:entries, _from, state) do
     {:reply, Enum.reverse(Map.get(state, :tweets, [])), state}
   end
