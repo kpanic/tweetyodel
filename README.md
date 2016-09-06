@@ -21,7 +21,7 @@ Tweetyodel.Worker.Supervisor.start_tweet("ma' namespace")
 
 If you want to use the **Twitter Streaming API**, follow these steps:
 
-```
+```elixir
 # Bieber has always tweets
 Tweetyodel.Worker.start_stream("ma' namespace", "bieber")
 # Fetch only the the first 5 tweets and their text
@@ -37,7 +37,7 @@ Tweetyodel.Worker.search("ma' namespace", "microsoft")
 
 You can also stop the stream (which will stop and kill the streaming process)
 However it will keep the tweets searched or streamed
-```
+```elixir
 Tweetyodel.Worker.stop_stream("ma' namespace")
 ```
 
