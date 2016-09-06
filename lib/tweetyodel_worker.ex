@@ -21,7 +21,7 @@ defmodule Tweetyodel.Worker do
   # API
 
   def start_stream(namespace, topic) do
-    GenServer.cast(via_tuple(namespace), %{start_tweets: topic})
+    GenServer.call(via_tuple(namespace), %{start_stream: topic})
   end
 
   defp schedule_cleanup() do
@@ -37,7 +37,7 @@ defmodule Tweetyodel.Worker do
   end
 
   def stop_stream(namespace) do
-    GenServer.call(via_tuple(namespace), :stop_tweets)
+    GenServer.call(via_tuple(namespace), :stop_stream)
   end
 
   def search(namespace, topic) do
@@ -62,20 +62,29 @@ defmodule Tweetyodel.Worker do
     {:reply, Enum.reverse(Map.get(state, :tweets, [])), state}
   end
 
-  def handle_call(:stop_tweets, _from, state) do
-    stream_pid = Map.get(state, :stream)
-    if stream_pid do
-      ExTwitter.stream_control(stream_pid, :stop)
-      Process.exit(stream_pid, :normal)
-      {:reply, :ok, state}
-    else
-      {:reply, :stream_not_started, state}
-    end
+  def handle_call(:stop_stream, _from, %{stream: stream_pid, tweets: tweets}) do
+    ExTwitter.stream_control(stream_pid, :stop)
+    Process.exit(stream_pid, :normal)
+    {:reply, :ok, %{tweets: tweets}}
   end
 
-  def handle_cast(%{start_tweets: topic}, state) do
+  def handle_call(:stop_stream, _from, state) do
+    {:reply, :stream_not_started, state}
+  end
+
+  def handle_call(%{start_stream: topic}, _from, state) do
     schedule_work(topic)
-    {:noreply, state}
+    {:reply, :ok, state}
+  end
+
+  # Stream already started? just carry on with the state
+  def handle_info(%{fetch_tweets: _}, %{stream: pid})  do
+    {:noreply, %{stream: pid}}
+  end
+
+  # Stream already started? just carry on with the state
+  def handle_info(%{fetch_tweets: _}, %{stream: pid, tweets: tweets})  do
+    {:noreply, %{stream: pid, tweets: tweets}}
   end
 
   def handle_info(%{fetch_tweets: topic}, state) do
