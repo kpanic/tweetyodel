@@ -85,13 +85,8 @@ defmodule Tweetyodel.Worker do
   end
 
   # Stream already started? just carry on with the state
-  def handle_info(%{fetch_tweets: _}, %{stream: pid})  do
-    {:noreply, %{stream: pid}}
-  end
-
-  # Stream already started? just carry on with the state
-  def handle_info(%{fetch_tweets: _}, %{stream: pid, tweets: tweets})  do
-    {:noreply, %{stream: pid, tweets: tweets}}
+  def handle_info(%{fetch_tweets: _}, %{stream: _} = state)  do
+    {:noreply, state}
   end
 
   def handle_info(%{fetch_tweets: topic}, state) do
