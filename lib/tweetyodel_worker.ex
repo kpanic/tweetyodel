@@ -2,6 +2,7 @@ defmodule Tweetyodel.Worker do
   use GenServer
 
   @max_keep_tweets 100
+  @start_stream_after 10_000
 
   def start_link(name) do
     GenServer.start_link(__MODULE__, [], name: via_tuple(name))
@@ -22,16 +23,16 @@ defmodule Tweetyodel.Worker do
 
   # API
 
-  def start_stream(namespace, topic) do
-    GenServer.call(via_tuple(namespace), %{start_stream: topic})
+  def start_stream(namespace, topic, timer_milliseconds \\ @start_stream_after) do
+    GenServer.call(via_tuple(namespace), %{start_stream: topic, timer: timer_milliseconds})
   end
 
   defp schedule_cleanup() do
     Process.send_after(self(), :purge_tweets, 60_000 * 1)
   end
 
-  defp schedule_work(topic) do
-    Process.send_after(self(), %{fetch_tweets: topic}, 10_000)
+  defp schedule_work(topic, milliseconds) do
+    Process.send_after(self(), %{fetch_tweets: topic}, milliseconds)
   end
 
   def entries(namespace)  do
@@ -60,6 +61,12 @@ defmodule Tweetyodel.Worker do
 
   # GenServer
 
+  def handle_call(%{topic: topic, new_time: milliseconds}, _from, state) do
+    timer_ref = Map.get(state, :timer)
+    Process.cancel_timer(timer_ref)
+    {:reply, milliseconds, Map.put(state, :timer, schedule_work(topic, milliseconds))}
+  end
+
   def handle_call(%{search: topic}, _from, state) do
     tweets = ExTwitter.search(topic)
     {:reply, tweets, Map.put(state, :tweets, tweets)}
@@ -79,9 +86,8 @@ defmodule Tweetyodel.Worker do
     {:reply, :stream_not_started, state}
   end
 
-  def handle_call(%{start_stream: topic}, _from, state) do
-    schedule_work(topic)
-    {:reply, :ok, state}
+  def handle_call(%{start_stream: topic, timer: milliseconds}, _from, state) do
+    {:reply, :ok, Map.put(state, :timer, schedule_work(topic, milliseconds))}
   end
 
   # Stream already started? just carry on with the state
