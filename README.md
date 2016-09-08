@@ -24,6 +24,21 @@ export TWITTER_ACCESS_TOKEN="0123456789"
 export TWITTER_ACCESS_SECRET="0123456789"
 ```
 
+You have also the possibility to configure:
+
+```elixir
+config :tweetyodel,
+  max_keep_tweets: 100,
+  purge_interval: 30_000
+```
+
+`:max_keep_tweets` is the number of maximum tweets that you want to keep in
+your `GenServer` process after the purge operation
+
+`:purge_interval` is the number of milliseconds that you want to wait to purge
+the tweets. They will be reset to `:max_keep_tweets` after this interval
+periodically.
+
 ## How to use
 
 ```elixir
