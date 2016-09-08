@@ -28,7 +28,7 @@ defmodule Tweetyodel.Mixfile do
 
   defp package do
       [
-      files: ["config", "lib", "LICENSE", "mix.exs", "mix.lock", "README.md"],
+      files: ["config", "lib", "LICENSE", "mix.exs", "README.md"],
       maintainers: ["Marco Milanesi"],
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/kpanic/tweetyodel",
