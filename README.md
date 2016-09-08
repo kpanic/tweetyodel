@@ -41,7 +41,7 @@ Enum.map(Tweetyodel.Worker.entries("ma' namespace"), fn tweet -> tweet.text end)
 ```
 
 If you want your twitter stream to start to pull tweets instantly:
-```
+```elixir
 Tweetyodel.Worker.start_stream("ma' namespace", "linux", 0)
 ```
 
