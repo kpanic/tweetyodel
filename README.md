@@ -40,10 +40,15 @@ Tweetyodel.Worker.start_stream("ma' namespace", "bieber")
 Enum.map(Tweetyodel.Worker.entries("ma' namespace"), fn tweet -> tweet.text end) |> Enum.take(5)
 ```
 
+If you want your twitter stream to start to pull tweets instantly:
+```
+Tweetyodel.Worker.start_stream("ma' namespace", "linux", 0)
+```
+
 If you want to search instantly Twitter:
 
 ```elixir
-Tweetyodel.Worker.search("ma' namespace", "microsoft")
+Tweetyodel.Worker.search("ma' namespace", "#myelixirstatus")
 ```
 
 You can also stop the stream (which will stop and kill the streaming process)
