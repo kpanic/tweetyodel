@@ -28,3 +28,7 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :tweetyodel,
+  max_keep_tweets: 100,
+  purge_interval: 30_000

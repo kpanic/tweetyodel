@@ -1,8 +1,9 @@
 defmodule Tweetyodel.Worker do
   use GenServer
 
-  @max_keep_tweets 100
+  @max_keep_tweets Application.get_env(:tweetyodel, :max_keep_tweets, 100)
   @start_stream_after 10_000
+  @purge_interval Application.get_env(:tweetyodel, :purge_interval, 60_000)
 
   def start_link(name) do
     GenServer.start_link(__MODULE__, [], name: via_tuple(name))
@@ -28,7 +29,7 @@ defmodule Tweetyodel.Worker do
   end
 
   defp schedule_cleanup() do
-    Process.send_after(self(), :purge_tweets, 60_000 * 1)
+    Process.send_after(self(), :purge_tweets, @purge_interval)
   end
 
   defp schedule_work(topic, milliseconds) do
