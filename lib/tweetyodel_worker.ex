@@ -63,6 +63,7 @@ defmodule Tweetyodel.Worker do
   # GenServer
 
   def handle_call(%{search: topic}, _from, state) do
+    configure_extwitter()
     tweets = ExTwitter.search(topic)
     {:reply, tweets, Map.put(state, :tweets, tweets)}
   end
