@@ -28,14 +28,6 @@ defmodule Tweetyodel.Worker do
     GenServer.call(via_tuple(namespace), %{start_stream: topic, timer: timer_milliseconds})
   end
 
-  defp schedule_cleanup() do
-    Process.send_after(self(), :purge_tweets, @purge_interval)
-  end
-
-  defp schedule_work(topic, milliseconds) do
-    Process.send_after(self(), %{fetch_tweets: topic}, milliseconds)
-  end
-
   def entries(namespace)  do
     GenServer.call(via_tuple(namespace), :entries)
   end
@@ -60,13 +52,15 @@ defmodule Tweetyodel.Worker do
     )
   end
 
-  # GenServer
-
-  def handle_call(%{topic: topic, new_time: milliseconds}, _from, state) do
-    timer_ref = Map.get(state, :timer)
-    Process.cancel_timer(timer_ref)
-    {:reply, milliseconds, Map.put(state, :timer, schedule_work(topic, milliseconds))}
+  defp schedule_cleanup() do
+    Process.send_after(self(), :purge_tweets, @purge_interval)
   end
+
+  defp schedule_work(topic, milliseconds) do
+    Process.send_after(self(), %{fetch_tweets: topic}, milliseconds)
+  end
+
+  # GenServer
 
   def handle_call(%{search: topic}, _from, state) do
     tweets = ExTwitter.search(topic)
@@ -117,5 +111,9 @@ defmodule Tweetyodel.Worker do
     tweets = Map.get(state, :tweets, [])
     |> Enum.take(@max_keep_tweets)
     {:noreply, Map.put(state, :tweets, tweets), :hibernate}
+  end
+
+  def handle_info(_msg, state) do
+    {:noreply, state}
   end
 end
