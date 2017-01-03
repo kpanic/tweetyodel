@@ -1,4 +1,4 @@
-%{"extwitter": {:hex, :extwitter, "0.7.2", "15b40b75452164c312422dd02a3e849d777cf5d879fbf4b8f5f37c98ec96d334", [:mix], [{:poison, "~> 2.0", [hex: :poison, optional: false]}]},
+%{"extwitter": {:hex, :extwitter, "0.7.3", "0d54031bde6b829484c7336b54fca85a0dc114c9e5b3cceb6c164c9b86fda634", [:mix], [{:poison, "~> 2.0", [hex: :poison, optional: false]}]},
   "gproc": {:hex, :gproc, "0.5.0", "2df2d886f8f8a7b81a4b04aa17972b5965bbc5bf0100ea6d8e8ac6a0e7389afe", [:rebar], []},
   "oauth": {:git, "https://github.com/tim/erlang-oauth.git", "fca8163e8f7af867015e2413c4b03a4f8f4df0c9", []},
   "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []}}
