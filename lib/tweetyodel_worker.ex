@@ -17,7 +17,7 @@ defmodule Tweetyodel.Worker do
     :gproc.whereis_name({:n, :l, {:tweet_room, room_name}})
   end
 
-  def init(_)  do
+  def init(_) do
     schedule_cleanup()
     {:ok, %{}}
   end
@@ -40,9 +40,7 @@ defmodule Tweetyodel.Worker do
     GenServer.call(via_tuple(namespace), %{search: topic})
   end
 
-  # Private
-
-  defp configure_extwitter do
+  def configure_extwitter do
     ExTwitter.configure([
           consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
           consumer_secret: System.get_env("TWITTER_CONSUMER_SECRET"),
@@ -87,7 +85,7 @@ defmodule Tweetyodel.Worker do
   end
 
   # Stream already started? just carry on with the state
-  def handle_info(%{fetch_tweets: _}, %{stream: _} = state)  do
+  def handle_info(%{fetch_tweets: _}, %{stream: _, timer: _} = state)  do
     {:noreply, state}
   end
 
@@ -101,6 +99,7 @@ defmodule Tweetyodel.Worker do
     end
     {:noreply, Map.put(state, :stream, pid)}
   end
+
 
   def handle_info({:tweet, tweet}, state) do
     tweets = [tweet|Map.get(state, :tweets, [])]
