@@ -2,7 +2,7 @@ defmodule Tweetyodel.Worker do
   use GenServer
 
   @max_keep_tweets Application.get_env(:tweetyodel, :max_keep_tweets, 100)
-  @start_stream_after 10_000
+  @start_stream_after 1_000
   @purge_interval Application.get_env(:tweetyodel, :purge_interval, 60_000)
 
   def start_link(name) do
