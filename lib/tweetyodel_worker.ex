@@ -91,12 +91,7 @@ defmodule Tweetyodel.Worker do
 
   def handle_info(%{fetch_tweets: topic}, state) do
     parent = self()
-    pid = spawn_link fn ->
-      configure_extwitter()
-      for tweet <- ExTwitter.stream_filter([track: topic], :infinity) do
-        send parent, {:tweet, tweet}
-      end
-    end
+    {:ok, pid} = Tweetyodel.Twitter.start_link(%{pid: parent, topic: topic})
     {:noreply, Map.put(state, :stream, pid)}
   end
 
