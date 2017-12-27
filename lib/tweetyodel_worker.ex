@@ -2,7 +2,7 @@ defmodule Tweetyodel.Worker do
   use GenServer
 
   @max_keep_tweets Application.get_env(:tweetyodel, :max_keep_tweets, 100)
-  @start_stream_after 10_000
+  @start_stream_after 1_000
   @purge_interval Application.get_env(:tweetyodel, :purge_interval, 60_000)
 
   def start_link(name) do
@@ -17,7 +17,7 @@ defmodule Tweetyodel.Worker do
     :gproc.whereis_name({:n, :l, {:tweet_room, room_name}})
   end
 
-  def init(_)  do
+  def init(_) do
     schedule_cleanup()
     {:ok, %{}}
   end
@@ -28,7 +28,7 @@ defmodule Tweetyodel.Worker do
     GenServer.call(via_tuple(namespace), %{start_stream: topic, timer: timer_milliseconds})
   end
 
-  def entries(namespace)  do
+  def entries(namespace) do
     GenServer.call(via_tuple(namespace), :entries)
   end
 
@@ -40,15 +40,12 @@ defmodule Tweetyodel.Worker do
     GenServer.call(via_tuple(namespace), %{search: topic})
   end
 
-  # Private
-
-  defp configure_extwitter do
-    ExTwitter.configure([
-          consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
-          consumer_secret: System.get_env("TWITTER_CONSUMER_SECRET"),
-          access_token: System.get_env("TWITTER_ACCESS_TOKEN"),
-          access_token_secret: System.get_env("TWITTER_ACCESS_SECRET")
-        ]
+  def configure_extwitter do
+    ExTwitter.configure(
+      consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
+      consumer_secret: System.get_env("TWITTER_CONSUMER_SECRET"),
+      access_token: System.get_env("TWITTER_ACCESS_TOKEN"),
+      access_token_secret: System.get_env("TWITTER_ACCESS_SECRET")
     )
   end
 
@@ -87,30 +84,28 @@ defmodule Tweetyodel.Worker do
   end
 
   # Stream already started? just carry on with the state
-  def handle_info(%{fetch_tweets: _}, %{stream: _} = state)  do
+  def handle_info(%{fetch_tweets: _}, %{stream: _, timer: _} = state) do
     {:noreply, state}
   end
 
   def handle_info(%{fetch_tweets: topic}, state) do
     parent = self()
-    pid = spawn_link fn ->
-      configure_extwitter()
-      for tweet <- ExTwitter.stream_filter([track: topic], :infinity) do
-        send parent, {:tweet, tweet}
-      end
-    end
+    {:ok, pid} = Tweetyodel.Twitter.start_link(%{pid: parent, topic: topic})
     {:noreply, Map.put(state, :stream, pid)}
   end
 
   def handle_info({:tweet, tweet}, state) do
-    tweets = [tweet|Map.get(state, :tweets, [])]
+    tweets = [tweet | Map.get(state, :tweets, [])]
     {:noreply, Map.put(state, :tweets, tweets)}
   end
 
   def handle_info(:purge_tweets, state) do
     schedule_cleanup()
-    tweets = Map.get(state, :tweets, [])
-    |> Enum.take(@max_keep_tweets)
+
+    tweets =
+      Map.get(state, :tweets, [])
+      |> Enum.take(@max_keep_tweets)
+
     {:noreply, Map.put(state, :tweets, tweets), :hibernate}
   end
 
