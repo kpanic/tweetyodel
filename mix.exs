@@ -2,22 +2,23 @@ defmodule Tweetyodel.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :tweetyodel,
-     version: "0.1.0",
-     elixir: "~> 1.3",
-     description: description,
-     package: package,
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps()]
+    [
+      app: :tweetyodel,
+      version: "0.1.0",
+      elixir: "~> 1.3",
+      description: description,
+      package: package,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :extwitter, :gproc],
-    mod: {Tweetyodel, []}]
+    [applications: [:logger, :extwitter, :gproc], mod: {Tweetyodel, []}]
   end
 
   defp description do
@@ -27,13 +28,15 @@ defmodule Tweetyodel.Mixfile do
   end
 
   defp package do
-      [
+    [
       files: ["config", "lib", "LICENSE", "mix.exs", "README.md"],
       maintainers: ["Marco Milanesi"],
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/kpanic/tweetyodel",
-               "Contributors" => "https://github.com/kpanic/tweetyodel/graphs/contributors",
-               "Issues" => "https://github.com/kpanic/tweetyodel/issues"}
+      links: %{
+        "GitHub" => "https://github.com/kpanic/tweetyodel",
+        "Contributors" => "https://github.com/kpanic/tweetyodel/graphs/contributors",
+        "Issues" => "https://github.com/kpanic/tweetyodel/issues"
+      }
     ]
   end
 
