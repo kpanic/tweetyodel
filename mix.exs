@@ -4,7 +4,7 @@ defmodule Tweetyodel.Mixfile do
   def project do
     [app: :tweetyodel,
      version: "0.1.0",
-     elixir: "~> 1.3",
+     elixir: "~> 1.6",
      description: description,
      package: package,
      build_embedded: Mix.env == :prod,
