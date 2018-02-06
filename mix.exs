@@ -39,8 +39,7 @@ defmodule Tweetyodel.Mixfile do
 
   defp deps do
     [
-      {:oauth, github: "tim/erlang-oauth"},
-      {:extwitter, "~> 0.7.3"},
+      {:extwitter, "~> 0.9.1"},
       {:gproc, "~> 0.5.0"}
     ]
   end
