@@ -6,7 +6,7 @@ defmodule Tweetyodel do
 
     children = [
       # Leave space for workers
-      supervisor(Tweetyodel.Worker.Supervisor, []),
+      supervisor(Tweetyodel.Worker.Supervisor, [])
     ]
 
     opts = [strategy: :one_for_one, name: Tweetyodel.Supervisor]

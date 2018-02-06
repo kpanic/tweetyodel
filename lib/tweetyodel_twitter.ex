@@ -12,9 +12,11 @@ defmodule Tweetyodel.Twitter do
 
   def handle_info(%{pid: pid, topic: topic}, state) do
     Tweetyodel.Worker.configure_extwitter()
+
     for tweet <- ExTwitter.stream_filter([track: topic], :infinity) do
-      send pid, {:tweet, tweet}
+      send(pid, {:tweet, tweet})
     end
+
     {:noreply, state}
   end
 
